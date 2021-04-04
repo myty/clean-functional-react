@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import MusicBrainz from "../../services/music-brainz";
+import MusicBrainz from "../services/music-brainz";
 
 interface UseSearhOptions {
     term?: string;
@@ -7,7 +7,7 @@ interface UseSearhOptions {
     limit?: number;
 }
 
-export default function useSearch(options?: UseSearhOptions) {
+export default function useBadSearch(options?: UseSearhOptions) {
     const { term, offset, limit } = options ?? {};
 
     const [searching, setSearching] = useState(false);
