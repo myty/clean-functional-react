@@ -1,9 +1,12 @@
 import React, { FormEvent, useRef } from "react";
 import { Artist } from "../services/music-brainz";
+import Button from "./button";
 import PageNavigation from "./page-navigation";
 
 interface ArtistSearchProps {
     artists: Artist[];
+    hasNext?: boolean;
+    hasPrevious?: boolean;
     onNext?: () => void;
     onPrevious?: () => void;
     onSearch: (searchTerm?: string) => void;
@@ -13,6 +16,8 @@ interface ArtistSearchProps {
 
 const ArtistSearch = ({
     artists,
+    hasNext = false,
+    hasPrevious = false,
     onNext,
     onPrevious,
     onSearch,
@@ -62,16 +67,12 @@ const ArtistSearch = ({
                         <h2 className="inline mb-2 text-sm font-bold uppercase">
                             {totalResults} Artist Results
                         </h2>
-                        <button
-                            className="px-2 hover:underline hover:font-semibold"
-                            onClick={onPrevious}>
+                        <Button disabled={!hasPrevious} onClick={onPrevious}>
                             {"< Prev"}
-                        </button>
-                        <button
-                            className="px-2 hover:underline hover:font-semibold"
-                            onClick={onNext}>
+                        </Button>
+                        <Button disabled={!hasNext} onClick={onNext}>
                             {"Next >"}
-                        </button>
+                        </Button>
                     </div>
                     <ul>
                         {artists.map((artist) => (

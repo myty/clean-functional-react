@@ -1,45 +1,28 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import ArtistSearch from "../components/artist-search";
 import useGoodSearch from "../hooks/use-good-search";
 
 const LIMIT = 25;
 
-const GoodPage: React.FC<{}> = () => {
-    const { results, search, searching } = useGoodSearch({ limit: LIMIT });
-    const [searchTerm, setSearchTerm] = useState<string>();
-
-    const artistResults = results?.artists ?? [];
-    const currentOffset = results?.offset ?? 0;
-
-    const handlePrevClick = useCallback(
-        () =>
-            search({
-                offset: currentOffset - LIMIT,
-                term: searchTerm,
-            }),
-        [currentOffset, search, searchTerm]
-    );
-
-    const handleNextClick = useCallback(
-        () =>
-            search({
-                offset: currentOffset + LIMIT,
-                term: searchTerm,
-            }),
-        [currentOffset, search, searchTerm]
-    );
-
-    const handleSearch = (term?: string) => {
-        setSearchTerm(term);
-        search({ term });
-    };
+const GoodPage: React.FC = () => {
+    const {
+        hasNext,
+        hasPrevious,
+        loadNext,
+        loadPrevious,
+        results,
+        search,
+        searching,
+    } = useGoodSearch({ limit: LIMIT });
 
     return (
         <ArtistSearch
-            artists={artistResults}
-            onNext={handleNextClick}
-            onPrevious={handlePrevClick}
-            onSearch={handleSearch}
+            artists={results?.artists ?? []}
+            hasNext={hasNext}
+            hasPrevious={hasPrevious}
+            onNext={loadNext}
+            onPrevious={loadPrevious}
+            onSearch={search}
             searching={searching}
             totalResults={results?.count ?? 0}
         />
