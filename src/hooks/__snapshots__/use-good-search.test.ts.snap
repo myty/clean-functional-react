@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useGoodSearch initialization 1`] = `
+Object {
+  "hasNext": false,
+  "hasPrevious": false,
+  "loadNext": [Function],
+  "loadPrevious": [Function],
+  "results": undefined,
+  "search": [Function],
+  "searching": false,
+}
+`;

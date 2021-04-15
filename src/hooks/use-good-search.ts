@@ -14,14 +14,18 @@ interface UseSearchState {
     hasPrevious: boolean;
     limit: number;
     offset: number;
-    searchTerm?: string;
+    searchCalled: boolean;
     searching: boolean;
+    searchTerm?: string;
 }
 
 type UseSearchAction =
     | { type: "UPDATE_OPTIONS"; limit?: number; offset?: number }
     | { type: "CLEAR_SEARCH" }
-    | { type: "START_SEARCH"; term: string; offset?: number }
+    | { type: "LOAD_NEXT" }
+    | { type: "LOAD_PREVIOUS" }
+    | { type: "SET_SEARCH"; term: string }
+    | { type: "START_SEARCH" }
     | { type: "FINISH_SEARCH"; searchResult: MusicBrainzArtistSearchResult };
 
 const DEFAULT_OFFSET = 0;
@@ -44,7 +48,24 @@ function useSearchStateReducer(
                 artistResults: undefined,
                 searching: false,
             });
-        case "START_SEARCH":
+        case "LOAD_NEXT":
+            return calculationsAndDefaults({
+                ...state,
+                offset: state.limit + state.offset,
+                searchCalled: false,
+                searching: true,
+            });
+        case "LOAD_PREVIOUS":
+            const offset =
+                state.offset < state.limit ? 0 : state.offset - state.limit;
+
+            return calculationsAndDefaults({
+                ...state,
+                offset,
+                searchCalled: false,
+                searching: true,
+            });
+        case "SET_SEARCH":
             if (
                 action.term == null ||
                 action.term.trim() === "" ||
@@ -55,10 +76,15 @@ function useSearchStateReducer(
 
             return calculationsAndDefaults({
                 ...state,
-                offset: action.offset,
                 searchTerm: action.term,
+                searchCalled: false,
                 searching: true,
             });
+        case "START_SEARCH":
+            return {
+                ...state,
+                searchCalled: true,
+            };
         case "FINISH_SEARCH":
             return calculationsAndDefaults({
                 ...state,
@@ -73,6 +99,7 @@ const defaultState: UseSearchState = {
     hasPrevious: false,
     limit: DEFAULT_LIMIT,
     offset: DEFAULT_OFFSET,
+    searchCalled: false,
     searching: false,
 };
 
@@ -97,65 +124,74 @@ const calculationsAndDefaults = (
 };
 
 export default function useGoodSearch(options?: UseSearhOptions) {
-    const { offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = options ?? {};
+    const {
+        limit: limitOption = DEFAULT_LIMIT,
+        offset: offsetOption = DEFAULT_OFFSET,
+    } = options ?? {};
 
     const [
-        { searchTerm, searching, artistResults, hasNext, hasPrevious },
+        {
+            offset,
+            limit,
+            searchTerm,
+            searchCalled,
+            searching,
+            artistResults,
+            hasNext,
+            hasPrevious,
+        },
         dispatch,
     ] = useReducer(useSearchStateReducer, undefined, () =>
         calculationsAndDefaults({
-            limit,
-            offset,
+            limit: limitOption,
+            offset: offsetOption,
         })
     );
 
-    const loadResults = useCallback(
-        async (term?: string, offset?: number) => {
-            if (term == null || term.trim() === "") {
-                dispatch({ type: "CLEAR_SEARCH" });
-                return;
-            }
-
-            dispatch({ type: "START_SEARCH", term, offset });
-
-            const searchResult = await MusicBrainz.artistSearch(
-                term,
-                offset,
-                limit
-            );
-
-            dispatch({ type: "FINISH_SEARCH", searchResult });
-        },
-        [limit]
-    );
-
-    const loadPrevious = useCallback(() => {
-        if (artistResults == null || searchTerm == null) {
+    const setSearch = useCallback((term?: string) => {
+        if (term == null || term.trim() === "") {
+            dispatch({ type: "CLEAR_SEARCH" });
             return;
         }
 
-        loadResults(searchTerm, artistResults.offset - limit);
-    }, [artistResults, limit, loadResults, searchTerm]);
+        dispatch({ type: "SET_SEARCH", term });
+    }, []);
 
-    const loadNext = useCallback(() => {
-        if (artistResults == null || searchTerm == null) {
-            return;
-        }
+    const loadSearchResults = useCallback(async () => {
+        dispatch({ type: "START_SEARCH" });
 
-        loadResults(searchTerm, artistResults.offset + limit);
-    }, [artistResults, limit, loadResults, searchTerm]);
+        const searchResult = await MusicBrainz.artistSearch(
+            searchTerm!,
+            offset,
+            limit
+        );
+
+        dispatch({ type: "FINISH_SEARCH", searchResult });
+    }, [limit, offset, searchTerm]);
 
     useEffect(() => {
-        dispatch({ type: "UPDATE_OPTIONS", limit, offset });
-    }, [limit, offset]);
+        dispatch({
+            type: "UPDATE_OPTIONS",
+            limit: limitOption,
+            offset: offsetOption,
+        });
+    }, [limitOption, offsetOption]);
+
+    useEffect(() => {
+        if (searching && !searchCalled) {
+            loadSearchResults();
+        }
+    }, [loadSearchResults, searchCalled, searching]);
 
     return {
         hasNext,
         hasPrevious,
-        loadNext,
-        loadPrevious,
+        loadNext: () => dispatch({ type: "LOAD_NEXT" }),
+        loadPrevious: () => dispatch({ type: "LOAD_PREVIOUS" }),
         results: artistResults,
         searching,
-        search: loadResults,
+        search: (term?: string) => {
+            setSearch(term);
+        },
     };
 }
