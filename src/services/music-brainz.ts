@@ -1,17 +1,5 @@
 import axios from "axios";
-
-export interface Artist {
-    id: string;
-    name: string;
-    type: string;
-}
-
-export interface MusicBrainzArtistSearchResult {
-    artists: Array<Artist>;
-    count: number;
-    created: string;
-    offset: number;
-}
+import { ArtistSearchResult } from "../models/interfaces/artist-search-result";
 
 const MusicBrainz = {
     artistSearch: async (
@@ -19,13 +7,13 @@ const MusicBrainz = {
         offset: number = 0,
         limit: number = 25
     ) => {
-        const results = await axios.get<MusicBrainzArtistSearchResult>(
+        const { data } = await axios.get<ArtistSearchResult>(
             `https://musicbrainz.org/ws/2/artist?query=${encodeURIComponent(
                 searchTerm
             )}&limit=${limit}&offset=${offset}`
         );
 
-        return results.data;
+        return data;
     },
 };
 

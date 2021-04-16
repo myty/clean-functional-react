@@ -2,9 +2,7 @@ import { renderHook, act } from "@testing-library/react-hooks";
 import MusicBrainz from "../services/music-brainz";
 import useGoodSearch from "./use-good-search";
 import faker from "faker";
-
-const range = (start: number, end: number): Array<number> =>
-    new Array(end - start + 1).fill(undefined).map((_, k) => k + start);
+import { ArtistSearchResultFactory } from "../models/factories/artist-search-result-factory";
 
 const setupMocks = ({
     limit = 1,
@@ -15,18 +13,15 @@ const setupMocks = ({
     offset?: number;
     totalCount?: number;
 } = {}) => {
+    const value = ArtistSearchResultFactory.create({
+        artistCount: totalCount,
+        offset: offset,
+        totalCount: totalCount,
+    });
+
     const mockedArtistSearch = jest
         .spyOn(MusicBrainz, "artistSearch")
-        .mockResolvedValue({
-            artists: range(0, totalCount).map((num) => ({
-                id: `id-${num}`,
-                name: `name-${num}`,
-                type: `type-${num}`,
-            })),
-            count: totalCount,
-            created: new Date().toISOString(),
-            offset: offset,
-        });
+        .mockResolvedValue(value);
 
     return { limit, mockedArtistSearch, offset, totalCount };
 };

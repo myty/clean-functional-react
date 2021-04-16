@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Artist } from "../services/music-brainz";
 import useBadSearch from "../hooks/use-bad-search";
 import ArtistSearch from "../components/artist-search";
+import { Artist } from "../models/interfaces/artist";
 
 const BadPage: React.FC<{}> = () => {
     const [artistResults, setArtistResults] = useState<Array<Artist>>([]);

@@ -1,13 +1,9 @@
 import axios from "axios";
-import MusicBrainz, {
-    MusicBrainzArtistSearchResult,
-} from "../services/music-brainz";
+import { ArtistSearchResultFactory } from "../models/factories/artist-search-result-factory";
+import { ArtistSearchResult } from "../models/interfaces/artist-search-result";
+import MusicBrainz from "../services/music-brainz";
 
-const setupMocks = ({
-    getResult,
-}: {
-    getResult: MusicBrainzArtistSearchResult;
-}) => {
+const setupMocks = ({ getResult }: { getResult: ArtistSearchResult }) => {
     const axiosGetMock = jest
         .spyOn(axios, "get")
         .mockResolvedValue({ data: getResult });
@@ -16,20 +12,13 @@ const setupMocks = ({
 };
 
 describe("MusicBrainz", () => {
-    test("artistSearch", async () => {
+    test("artistSearch()", async () => {
         // Arrange
-        const expectedReturnedValue: MusicBrainzArtistSearchResult = {
-            artists: [
-                {
-                    id: "id",
-                    name: "name",
-                    type: "type",
-                },
-            ],
-            count: 1,
-            created: new Date().toISOString(),
+        const expectedReturnedValue = ArtistSearchResultFactory.create({
+            artistCount: 1,
             offset: 0,
-        };
+            totalCount: 1,
+        });
 
         setupMocks({
             getResult: expectedReturnedValue,

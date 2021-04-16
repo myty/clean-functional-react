@@ -1,5 +1,5 @@
 import React, { FormEvent, useRef } from "react";
-import { Artist } from "../services/music-brainz";
+import { Artist } from "../models/interfaces/artist";
 import Button from "./button";
 import PageNavigation from "./page-navigation";
 

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useReducer } from "react";
-import MusicBrainz, {
-    MusicBrainzArtistSearchResult,
-} from "../services/music-brainz";
+import { ArtistSearchResult } from "../models/interfaces/artist-search-result";
+import MusicBrainz from "../services/music-brainz";
 
 interface UseSearhOptions {
     offset?: number;
@@ -9,7 +8,7 @@ interface UseSearhOptions {
 }
 
 interface UseSearchState {
-    artistResults?: MusicBrainzArtistSearchResult;
+    artistResults?: ArtistSearchResult;
     hasNext: boolean;
     hasPrevious: boolean;
     limit: number;
@@ -20,13 +19,13 @@ interface UseSearchState {
 }
 
 type UseSearchAction =
-    | { type: "UPDATE_OPTIONS"; limit?: number; offset?: number }
     | { type: "CLEAR_SEARCH" }
+    | { type: "FINISH_SEARCH"; searchResult: ArtistSearchResult }
     | { type: "LOAD_NEXT" }
     | { type: "LOAD_PREVIOUS" }
     | { type: "SET_SEARCH"; term: string }
     | { type: "START_SEARCH" }
-    | { type: "FINISH_SEARCH"; searchResult: MusicBrainzArtistSearchResult };
+    | { type: "UPDATE_OPTIONS"; limit?: number; offset?: number };
 
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 25;
@@ -36,16 +35,16 @@ function useSearchStateReducer(
     action: UseSearchAction
 ): UseSearchState {
     switch (action.type) {
-        case "UPDATE_OPTIONS":
-            return calculationsAndDefaults({
-                ...state,
-                limit: action.limit,
-                offset: action.offset,
-            });
         case "CLEAR_SEARCH":
             return calculationsAndDefaults({
                 ...state,
                 artistResults: undefined,
+                searching: false,
+            });
+        case "FINISH_SEARCH":
+            return calculationsAndDefaults({
+                ...state,
+                artistResults: action.searchResult,
                 searching: false,
             });
         case "LOAD_NEXT":
@@ -85,11 +84,11 @@ function useSearchStateReducer(
                 ...state,
                 searchCalled: true,
             };
-        case "FINISH_SEARCH":
+        case "UPDATE_OPTIONS":
             return calculationsAndDefaults({
                 ...state,
-                artistResults: action.searchResult,
-                searching: false,
+                limit: action.limit,
+                offset: action.offset,
             });
     }
 }
