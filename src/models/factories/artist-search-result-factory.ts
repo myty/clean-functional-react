@@ -12,7 +12,10 @@ export const ArtistSearchResultFactory = {
         totalCount: number;
     }): ArtistSearchResult {
         return {
-            artists: ArtistFactory.createTestRecords({ count: artistCount }),
+            artists: ArtistFactory.createTestRecords({
+                count: artistCount,
+                startingId: offset + 1,
+            }),
             count: totalCount,
             created: new Date().toISOString(),
             offset: offset,

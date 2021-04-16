@@ -9,8 +9,14 @@ export const ArtistFactory = {
             type: `type-${id}`,
         });
     },
-    createTestRecords({ count = 1 }: { count?: number }): Array<ArtistRecord> {
-        return CollectionUtils.range(0, count).map((num) =>
+    createTestRecords({
+        startingId = 1,
+        count = 1,
+    }: {
+        startingId?: number;
+        count?: number;
+    }): Array<ArtistRecord> {
+        return CollectionUtils.range(startingId, count).map((num) =>
             ArtistFactory.createTestRecord({ id: num })
         );
     },

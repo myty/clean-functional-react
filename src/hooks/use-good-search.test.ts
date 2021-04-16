@@ -4,26 +4,34 @@ import useGoodSearch from "./use-good-search";
 import faker from "faker";
 import { ArtistSearchResultFactory } from "../models/factories/artist-search-result-factory";
 
-const setupMocks = ({
-    limit = 1,
-    offset = 0,
-    totalCount = 1,
-}: {
-    limit?: number;
-    offset?: number;
-    totalCount?: number;
-} = {}) => {
-    const value = ArtistSearchResultFactory.create({
-        artistCount: totalCount,
-        offset: offset,
-        totalCount: totalCount,
-    });
+const setupMocks = (
+    results: Array<{
+        limit?: number;
+        offset?: number;
+        totalCount?: number;
+    }> = []
+) => {
+    const defaultValue = {
+        artistCount: 1,
+        offset: 0,
+        totalCount: 1,
+    };
 
     const mockedArtistSearch = jest
         .spyOn(MusicBrainz, "artistSearch")
-        .mockResolvedValue(value);
+        .mockResolvedValue(ArtistSearchResultFactory.create(defaultValue));
 
-    return { limit, mockedArtistSearch, offset, totalCount };
+    for (const { limit, offset, totalCount } of results) {
+        mockedArtistSearch.mockResolvedValueOnce(
+            ArtistSearchResultFactory.create({
+                artistCount: limit ?? defaultValue.artistCount,
+                offset: offset ?? defaultValue.offset,
+                totalCount: totalCount ?? defaultValue.totalCount,
+            })
+        );
+    }
+
+    return { mockedArtistSearch };
 };
 
 describe("useGoodSearch", () => {
@@ -100,7 +108,7 @@ describe("useGoodSearch", () => {
 
         test("when offset > 0, hasPrevious is true", async () => {
             // Arrange
-            setupMocks({ offset: 1, totalCount: 2 });
+            setupMocks([{ offset: 1, totalCount: 2 }]);
             const { result, waitForNextUpdate } = renderHook(() =>
                 useGoodSearch()
             );
@@ -115,11 +123,15 @@ describe("useGoodSearch", () => {
 
         test("when count > limit + offset, hasNext is true", async () => {
             // Arrange
-            const { limit, offset } = setupMocks({
-                limit: 1,
-                offset: 1,
-                totalCount: 3,
-            });
+            const limit = 1;
+            const offset = 1;
+            setupMocks([
+                {
+                    limit: limit,
+                    offset: offset,
+                    totalCount: 3,
+                },
+            ]);
             const { result, waitForNextUpdate } = renderHook(() =>
                 useGoodSearch({ limit, offset })
             );
@@ -131,17 +143,51 @@ describe("useGoodSearch", () => {
             // Assert
             expect(result.current.hasNext).toBe(true);
         });
+
+        test("when offset > zero and search term is different, returns results at offset zero", async () => {
+            // Arrange
+            const limit = 5;
+            const offset = 0;
+            const secondSearchTerm = "different name";
+
+            const { mockedArtistSearch } = setupMocks([
+                { limit, offset: offset, totalCount: 15 },
+                { limit, offset: 5, totalCount: 15 },
+                { limit, offset: offset, totalCount: 5 },
+            ]);
+            const { result, waitForNextUpdate } = renderHook(() =>
+                useGoodSearch({ limit })
+            );
+            act(() => result.current.search("name"));
+            await waitForNextUpdate();
+            act(() => result.current.loadNext());
+            await waitForNextUpdate();
+
+            // Act
+            act(() => result.current.search(secondSearchTerm));
+            await waitForNextUpdate();
+
+            // Assert
+            expect(mockedArtistSearch).lastCalledWith(
+                secondSearchTerm,
+                offset,
+                limit
+            );
+        });
     });
 
     describe("next()", () => {
         test("when called, search is called with offset incremented by the limit", async () => {
             // Arrange
             const limit = faker.datatype.number({ min: 1, max: 25 });
-            const { mockedArtistSearch, offset } = setupMocks({
-                limit: limit,
-                offset: 0,
-                totalCount: limit + 2,
-            });
+            const offset = 0;
+            const { mockedArtistSearch } = setupMocks([
+                {
+                    limit: limit,
+                    offset: offset,
+                    totalCount: limit + 2,
+                },
+            ]);
             const { result, waitForNextUpdate } = renderHook(() =>
                 useGoodSearch({ limit, offset })
             );
@@ -161,11 +207,14 @@ describe("useGoodSearch", () => {
         test("when called, search is called with offset decremented by the limit", async () => {
             // Arrange
             const limit = faker.datatype.number({ min: 1, max: 25 });
-            const { mockedArtistSearch, offset } = setupMocks({
-                limit: limit,
-                offset: limit,
-                totalCount: limit + 2,
-            });
+            const offset = limit;
+            const { mockedArtistSearch } = setupMocks([
+                {
+                    limit: limit,
+                    offset: limit,
+                    totalCount: limit + 2,
+                },
+            ]);
             const { result, waitForNextUpdate } = renderHook(() =>
                 useGoodSearch({ limit, offset })
             );
@@ -184,11 +233,13 @@ describe("useGoodSearch", () => {
             // Arrange
             const limit = 25;
             const offset = 2;
-            const { mockedArtistSearch } = setupMocks({
-                limit: limit,
-                offset: offset,
-                totalCount: limit + 2,
-            });
+            const { mockedArtistSearch } = setupMocks([
+                {
+                    limit: limit,
+                    offset: offset,
+                    totalCount: limit + 2,
+                },
+            ]);
             const { result, waitForNextUpdate } = renderHook(() =>
                 useGoodSearch({ limit, offset })
             );

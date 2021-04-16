@@ -9,8 +9,6 @@ interface UseSearhOptions {
 
 interface UseSearchState {
     artistResults?: ArtistSearchResult;
-    hasNext: boolean;
-    hasPrevious: boolean;
     limit: number;
     offset: number;
     searchCalled: boolean;
@@ -25,10 +23,17 @@ type UseSearchAction =
     | { type: "LOAD_PREVIOUS" }
     | { type: "SET_SEARCH"; term: string }
     | { type: "START_SEARCH" }
-    | { type: "UPDATE_OPTIONS"; limit?: number; offset?: number };
+    | { type: "UPDATE_OPTIONS"; limit: number; offset: number };
 
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 25;
+
+const defaultState: UseSearchState = {
+    limit: DEFAULT_LIMIT,
+    offset: DEFAULT_OFFSET,
+    searchCalled: false,
+    searching: false,
+};
 
 function useSearchStateReducer(
     state: UseSearchState,
@@ -36,34 +41,34 @@ function useSearchStateReducer(
 ): UseSearchState {
     switch (action.type) {
         case "CLEAR_SEARCH":
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 artistResults: undefined,
                 searching: false,
-            });
+            };
         case "FINISH_SEARCH":
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 artistResults: action.searchResult,
                 searching: false,
-            });
+            };
         case "LOAD_NEXT":
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 offset: state.limit + state.offset,
                 searchCalled: false,
                 searching: true,
-            });
+            };
         case "LOAD_PREVIOUS":
             const offset =
                 state.offset < state.limit ? 0 : state.offset - state.limit;
 
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 offset,
                 searchCalled: false,
                 searching: true,
-            });
+            };
         case "SET_SEARCH":
             if (
                 action.term == null ||
@@ -73,54 +78,26 @@ function useSearchStateReducer(
                 return state;
             }
 
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 searchTerm: action.term,
+                offset: DEFAULT_OFFSET,
                 searchCalled: false,
                 searching: true,
-            });
+            };
         case "START_SEARCH":
             return {
                 ...state,
                 searchCalled: true,
             };
         case "UPDATE_OPTIONS":
-            return calculationsAndDefaults({
+            return {
                 ...state,
                 limit: action.limit,
                 offset: action.offset,
-            });
+            };
     }
 }
-
-const defaultState: UseSearchState = {
-    hasNext: false,
-    hasPrevious: false,
-    limit: DEFAULT_LIMIT,
-    offset: DEFAULT_OFFSET,
-    searchCalled: false,
-    searching: false,
-};
-
-const calculationsAndDefaults = (
-    state?: Omit<Partial<UseSearchState>, "hasNext" | "hasPrevious">
-) => {
-    const hasNext =
-        state?.artistResults != null &&
-        state?.limit != null &&
-        state.artistResults.count - (state.artistResults.offset + state.limit) >
-            0;
-
-    const hasPrevious =
-        state?.artistResults != null && state?.artistResults.offset > 0;
-
-    return {
-        ...defaultState,
-        ...state,
-        hasNext,
-        hasPrevious,
-    };
-};
 
 export default function useGoodSearch(options?: UseSearhOptions) {
     const {
@@ -129,23 +106,20 @@ export default function useGoodSearch(options?: UseSearhOptions) {
     } = options ?? {};
 
     const [
-        {
-            offset,
-            limit,
-            searchTerm,
-            searchCalled,
-            searching,
-            artistResults,
-            hasNext,
-            hasPrevious,
-        },
+        { offset, limit, searchTerm, searchCalled, searching, artistResults },
         dispatch,
-    ] = useReducer(useSearchStateReducer, undefined, () =>
-        calculationsAndDefaults({
-            limit: limitOption,
-            offset: offsetOption,
-        })
-    );
+    ] = useReducer(useSearchStateReducer, undefined, () => ({
+        ...defaultState,
+        limit: limitOption,
+        offset: offsetOption,
+    }));
+
+    const hasNext =
+        artistResults != null &&
+        limit != null &&
+        artistResults.count - (artistResults.offset + limit) > 0;
+
+    const hasPrevious = artistResults != null && artistResults.offset > 0;
 
     const setSearch = useCallback((term?: string) => {
         if (term == null || term.trim() === "") {
