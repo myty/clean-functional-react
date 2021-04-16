@@ -1,19 +1,19 @@
 import { useCallback, useState } from "react";
 import MusicBrainz from "../services/music-brainz";
 
-interface UseSearhOptions {
+interface UseSearchOptions {
     term?: string;
     offset?: number;
     limit?: number;
 }
 
-export default function useBadSearch(options?: UseSearhOptions) {
+export default function useBadSearch(options?: UseSearchOptions) {
     const { term, offset, limit } = options ?? {};
 
     const [searching, setSearching] = useState(false);
 
     const getSearchResults = useCallback(
-        async (searchOption?: UseSearhOptions) => {
+        async (searchOption?: UseSearchOptions) => {
             const { offset: searchOffset, limit: searchLimit } =
                 searchOption ?? {};
 

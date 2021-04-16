@@ -2,15 +2,13 @@ import { useCallback, useEffect, useReducer } from "react";
 import { ArtistSearchResult } from "../models/interfaces/artist-search-result";
 import MusicBrainz from "../services/music-brainz";
 
-interface UseSearhOptions {
-    offset?: number;
-    limit?: number;
+interface UseSearchOptions {
+    offset: number;
+    limit: number;
 }
 
-interface UseSearchState {
+interface UseSearchState extends UseSearchOptions {
     artistResults?: ArtistSearchResult;
-    limit: number;
-    offset: number;
     searchCalled: boolean;
     searching: boolean;
     searchTerm?: string;
@@ -99,7 +97,7 @@ function useSearchStateReducer(
     }
 }
 
-export default function useGoodSearch(options?: UseSearhOptions) {
+export default function useGoodSearch(options?: Partial<UseSearchOptions>) {
     const {
         limit: limitOption = DEFAULT_LIMIT,
         offset: offsetOption = DEFAULT_OFFSET,
