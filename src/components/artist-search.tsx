@@ -34,7 +34,7 @@ const ArtistSearch = ({
     };
 
     return (
-        <div className="flex flex-col items-center">
+        <div data-testid="artist-search" className="flex flex-col items-center">
             <PageNavigation />
 
             <h1 className="py-2 text-xl font-semibold">Artist Search</h1>
