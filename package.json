@@ -3,6 +3,9 @@
     "version": "0.1.0",
     "scripts": {
         "dev": "vite",
+        "docz:dev": "docz dev",
+        "docz:build": "docz build",
+        "docz:serve": "docz build && docz serve",
         "build": "tsc && vite build",
         "serve": "vite preview",
         "coverage": "jest --coverage",
@@ -12,6 +15,7 @@
     },
     "dependencies": {
         "axios": "^0.21.1",
+        "docz": "^2.3.1",
         "react": "^17.0.0",
         "react-dom": "^17.0.0",
         "react-router-dom": "^5.2.0",
@@ -26,7 +30,6 @@
         "@testing-library/jest-dom": "^5.12.0",
         "@testing-library/react": "^11.2.6",
         "@testing-library/react-hooks": "^5.1.1",
-        "@tsconfig/create-react-app": "^1.0.2",
         "@types/faker": "^5.5.1",
         "@types/jest": "^26.0.22",
         "@types/react": "^17.0.0",
