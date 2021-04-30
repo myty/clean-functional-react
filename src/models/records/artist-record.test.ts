@@ -1,4 +1,3 @@
-import { ArtistFactory } from "../factories/artist-factory";
 import { ArtistRecord } from "./artist-record";
 
 describe("ArtistRecord", () => {
