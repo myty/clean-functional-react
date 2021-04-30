@@ -4,17 +4,31 @@ React hooks was released in 2019.  Since then, we've been enamored with their si
 
 ## Table of Contents
 
-1. Reactive Data Flow Pattern
-   1. Clear Boundaries.
-   2. _Command Query Separation_
-2. Anti-Patterns
-3. Testability. _Is it easy to test?_
+- [Clean Functional React](#clean-functional-react)
+  - [Table of Contents](#table-of-contents)
+    - [Reactive Data Flow Pattern](#reactive-data-flow-pattern)
+      - [Clear Boundaries](#clear-boundaries)
+      - [CommandQuery Separation](#commandquery-separation)
+    - [Anti-Patterns](#anti-patterns)
+    - [Testability](#testability)
 
 ### Reactive Data Flow Pattern
 
 ![react hooks data flow diagram](./docs/clean-react-hook.drawio.svg)
 
 - Properties returned from a hook should either be a data field or a command/action field.  It either gets something or does something. It should never be both. Further more, actions should never be async functions.  Waiting on the async operation should occur inside of the hook, not in the consumer of the hook.
+
+#### Clear Boundaries
+
+```markdown
+TODO
+```
+
+#### CommandQuery Separation
+
+```markdown
+TODO
+```
 
 ### Anti-Patterns
 
@@ -24,4 +38,6 @@ React hooks was released in 2019.  Since then, we've been enamored with their si
 
 ### Testability
 
-Work in progress. More to come.
+```markdown
+TODO
+```
