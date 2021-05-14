@@ -1,15 +1,26 @@
 {
     "compilerOptions": {
-        "baseUrl": "./src",
-        "target": "ESNext",
-        "types": ["vite/client", "jest", "node"],
         "allowJs": false,
-        "jsx": "react",
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./src",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
         "incremental": true,
+        "isolatedModules": true,
+        "jsx": "react",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "noFallthroughCasesInSwitch": true,
         "noUnusedLocals": true,
-        "strictNullChecks": true
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "target": "ESNext",
+        "types": ["vite/client", "jest", "node"]
     },
     "exclude": ["dist", "node_modules"],
-    "extends": "@tsconfig/create-react-app/tsconfig.json",
     "include": ["./src"]
 }
