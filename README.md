@@ -6,6 +6,13 @@ React hooks were first introduced in October 2018 and released with React v16.8.
 
 - [Clean Functional React](#clean-functional-react)
   - [Table of Contents](#table-of-contents)
+    - [Pitfalls](#pitfalls)
+      - [Why Did I Render?](#why-did-i-render)
+    - [What makes a clean hook?](#what-makes-a-clean-hook)
+      - [Observation One](#observation-one)
+      - [Observation Two](#observation-two)
+      - [Observation Three](#observation-three)
+      - [Observation Four](#observation-four)
     - [Reactive Data Flow Pattern](#reactive-data-flow-pattern)
       - [React Hooks](#react-hooks)
         - [useState](#usestate)
@@ -19,7 +26,11 @@ React hooks were first introduced in October 2018 and released with React v16.8.
     - [Anti-Patterns](#anti-patterns)
     - [Testability](#testability)
 
-### Reactive Data Flow Pattern
+### Pitfalls
+
+While writing React apps in a functional manner enables composibility, it also enables you to create some headaches for yourself.
+
+#### Why Did I Render?
 
 One of the first difficulties encountered when working with hooks is trying to understand why a component rendered and re-rendered. It's why hooks such as [why-did-you-render](https://github.com/welldone-software/why-did-you-render) and [useWhyDidYouUpdate](https://usehooks.com/useWhyDidYouUpdate/) exist.
 
@@ -27,7 +38,29 @@ One of the first difficulties encountered when working with hooks is trying to u
 // TODO
 ```
 
-Properties returned from a hook should either be a data field or a command/action field.  It either gets something or does something. It should never be both. This closely follows the [command query separation principle](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation).
+### What makes a clean hook?
+
+Clean hooks are easy to understand, maintian and test. When done well, components that consume hooks do not need to handle much state or control flow logic.
+
+#### Observation One
+
+Properties returned from a hook are either data fields or commands.  They either get something or do something. It is never be both.
+
+#### Observation Two
+
+Data fields are properties and not methods
+
+#### Observation Three
+
+Commands are fire-and-forget methods.  They do not return a value such as a Promise.
+
+#### Observation Four
+
+The ceremony of hooks and components act in part as MVC. The hook is the Controller, the data return as the model, the commands as the action on the on the controller. This leaves the compnent to mearly be the view.  All that it needs to concern itself with is how it will display the data returned from the hooks.
+
+### Reactive Data Flow Pattern
+
+From these observations the pattern that has emerged I'd propose calling the **Reactive Data Flow** pattern. If you look closely, it draws inspiration and influence from Model-View-Controller (MVC) and the [Command Query Separation Principle](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) (CQS)
 
 ![react hooks data flow diagram](./docs/assets/clean-react-hook.drawio.svg)
 
