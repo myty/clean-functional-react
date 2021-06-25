@@ -1,12 +1,6 @@
-# Clean Functional React
+# clean functional react _(needs a better title)_
 
 React hooks were first introduced in October 2018 and released with React v16.8.  Since then, we've been enamored with their simplicity and composability. Anyone that uses hooks extensively, quickly finds out that the components that consume them, get complicated and messy...real fast. Trying to do hooks in any large scale codebase becomes even more difficult, not to mention, testing is most likely an after thought. My hope, is to bring some clarity and structure to our custom react hooks and the components that use them.  The end goal is that our hooks are clean, organized, understandable, and dare I say testable. 😲
-
-- [Clean Functional React](#clean-functional-react)
-  - [Guidelines](#guidelines)
-  - [Reactive Data Flow Pattern](#reactive-data-flow-pattern)
-  - [Testability](#testability)
-  - [Further Reading](#further-reading)
 
 ## Guidelines
 
@@ -82,7 +76,7 @@ React hooks were first introduced in October 2018 and released with React v16.8.
 
 Based on the preceding guidelines, I'd like to call this the **Reactive Data Flow** pattern. If you look closely, it draws direct inspiration from the [Command Query Separation Principle](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) (CQS)
 
-![react hooks data flow diagram](./docs/assets/clean-react-hook.drawio.svg)
+![react hooks data flow diagram](../docs/assets/clean-react-hook.drawio.svg)
 
 ## Testability
 
