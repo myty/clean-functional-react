@@ -4,8 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { render } from "@testing-library/react";
 
 import "@testing-library/jest-dom";
-import { ArtistSearchResult } from "models/interfaces/artist-search-result";
 import { ArtistSearchResultFactory } from "models/factories/artist-search-result-factory";
+import * as useGoodSearch from "hooks/use-good-search";
 
 const renderWithRouter = (ui: React.ReactElement, { route = "/" } = {}) => {
     window.history.pushState({}, "Test page", route);
@@ -13,21 +13,19 @@ const renderWithRouter = (ui: React.ReactElement, { route = "/" } = {}) => {
     return render(ui, { wrapper: BrowserRouter });
 };
 
-let hasNext: boolean = false;
-let results: ArtistSearchResult;
-let searching: boolean = false;
+const defaultUseGoodSearchImplementation: ReturnType<
+    typeof useGoodSearch.default
+> = {
+    hasNext: false,
+    hasPrevious: true,
+    loadNext: jest.fn(),
+    loadPrevious: jest.fn(),
+    results: undefined,
+    search: jest.fn(),
+    searching: false,
+};
 
-jest.mock("../hooks/use-good-search", () => {
-    return jest.fn(() => ({
-        hasNext,
-        hasPrevious: true,
-        loadNext: jest.fn(),
-        loadPrevious: jest.fn(),
-        results,
-        search: jest.fn(),
-        searching,
-    }));
-});
+const useGoodSearchSpy = jest.spyOn(useGoodSearch, "default");
 
 describe("GoodPage", () => {
     beforeEach(() => {
@@ -35,7 +33,10 @@ describe("GoodPage", () => {
     });
 
     test("renders", () => {
-        // Arrange & Act
+        // Arrange
+        useGoodSearchSpy.mockReturnValue(defaultUseGoodSearchImplementation);
+
+        // Act
         const { getByTestId } = renderWithRouter(<App />, { route: "/good" });
 
         // Assert
@@ -44,10 +45,13 @@ describe("GoodPage", () => {
 
     test("when hook returns no results, artist results section is not displayed", () => {
         // Arrange
-        results = ArtistSearchResultFactory.create({
-            artistCount: 0,
-            offset: 0,
-            totalCount: 0,
+        useGoodSearchSpy.mockReturnValue({
+            ...defaultUseGoodSearchImplementation,
+            results: ArtistSearchResultFactory.create({
+                artistCount: 0,
+                offset: 0,
+                totalCount: 0,
+            }),
         });
 
         // Act
@@ -61,10 +65,13 @@ describe("GoodPage", () => {
 
     test("when hook returns results, artist results section is displayed", () => {
         // Arrange
-        results = ArtistSearchResultFactory.create({
-            artistCount: 1,
-            offset: 0,
-            totalCount: 1,
+        useGoodSearchSpy.mockReturnValue({
+            ...defaultUseGoodSearchImplementation,
+            results: ArtistSearchResultFactory.create({
+                artistCount: 1,
+                offset: 0,
+                totalCount: 1,
+            }),
         });
 
         // Act

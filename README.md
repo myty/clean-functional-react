@@ -3,10 +3,17 @@
 React hooks were first introduced in October 2018 and released with React v16.8.  Since then, we've been enamored with their simplicity and composability. Anyone that uses hooks extensively, quickly finds out that the components that consume them, get complicated and messy...real fast. Trying to do hooks in any large scale codebase becomes even more difficult, not to mention, testing is most likely an after thought. My hope, is to bring some clarity and structure to our custom react hooks and the components that use them.  The end goal is that our hooks are clean, organized, understandable, and dare I say testable. 😲
 
 - [Clean Functional React](#clean-functional-react)
-  - [Guidelines](#guidelines)
   - [Reactive Data Flow Pattern](#reactive-data-flow-pattern)
+  - [Guidelines](#guidelines)
   - [Testability](#testability)
+    - [Testing Components](#testing-components)
   - [Further Reading](#further-reading)
+
+## Reactive Data Flow Pattern
+
+The **Reactive Data Flow** pattern draws direct inspiration from the [Command Query Separation Principle](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) (CQS)
+
+![react hooks data flow diagram](./docs/assets/clean-react-hook.drawio.svg)
 
 ## Guidelines
 
@@ -14,7 +21,7 @@ React hooks were first introduced in October 2018 and released with React v16.8.
 
 - ✅ Limit your hook parameters.  Aim to keep them as small and few as possible.
 
-  _A parameter is a dependecy which means there are more reasons to update._
+  _A parameter is a dependency which means there are more reasons to update._
 
 - ✅ Prefer properties that are either data fields or commands.
 
@@ -78,18 +85,34 @@ React hooks were first introduced in October 2018 and released with React v16.8.
     }
     ```
 
-## Reactive Data Flow Pattern
-
-Based on the preceding guidelines, I'd like to call this the **Reactive Data Flow** pattern. If you look closely, it draws direct inspiration from the [Command Query Separation Principle](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) (CQS)
-
-![react hooks data flow diagram](./docs/assets/clean-react-hook.drawio.svg)
-
 ## Testability
 
-Starting development of a component or hook with a TDD approach
+Following the react data flow pattern makes testing much simpler to do.  Here are a few examples of how to do it:
 
-- Separate concerns
-- Enforce clean code guidelines
+### Testing Components
+
+Mock the results of the hook and concentrate on the rendering portion of the component
+
+```typescriptreact
+test("renders", () => {
+    // Arrange
+    jest.spyOn(useGoodSearch, "default").mockReturnValue({
+        hasNext: false,
+        hasPrevious: true,
+        loadNext: jest.fn(),
+        loadPrevious: jest.fn(),
+        results: undefined,
+        search: jest.fn(),
+        searching: false,
+    });
+
+    // Act
+    const { getByTestId } = renderWithRouter(<App />, { route: "/good" });
+
+    // Assert
+    expect(getByTestId("artist-search")).toBeTruthy();
+});
+```
 
 ## Further Reading
 

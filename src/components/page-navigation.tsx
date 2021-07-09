@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const PageNavigation: React.FC<{}> = () => {
+const PageNavigation: React.FC = () => {
     return (
         <div className="w-full p-2 text-center bg-gray-200 border-b-2 border-gray-200">
             <NavLink
